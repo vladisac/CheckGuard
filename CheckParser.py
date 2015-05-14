@@ -13,12 +13,20 @@ class CheckParser(object):
     
     def read_file(self):
         filename = "C:\\Vectron\\VPosPC\\files.txt"
+        delimiter = "**************************************************"
         with codecs.open(filename, "r", encoding="latin-1") as fh:
             fh.seek(self.position)
             line = fh.readline()
+            include = False
             while line:
-                if line[0] != '\n' and line[0] != '*' and line[0] != '\r':
-                    self.check_data.append(line.strip("\n\r"))
+                if re.search("\*+", line):
+                    if not include:
+                        include = True
+                        line = fh.readline()
+                    else:
+                        include = False
+                if include:
+                    self.check_data.append(line)
                 if "= Cut =" in line:
                     self.generate_new_check()
                     self.check_data = []
@@ -41,16 +49,22 @@ class CheckParser(object):
         stdout, stderr = print_job.communicate()
 
     def generate_new_check(self):
-        products = self.check_data[1:(len(self.check_data)-4)]
         check_to_print = []
         time = datetime.datetime.now()
-        for elem in products:
-            item = list(filter(lambda x: x != '',elem.split(' ')))
-            print(item)
-            price = (re.sub(',', '', item[5])).rjust(8, '0')
+        for elem in self.check_data:
+            reg_ex = re.search('\d+\,\d+', elem)
+            assert reg_ex
+            price = elem[reg_ex.start():reg_ex.end()]
+            price = (re.sub(',', '', price)).rjust(8, '0')
             decimals = "2"
-            quantity = (re.sub(',', '', item[0])).rjust(6, '0') + "000"
-            tva = re.sub('%','', item[6])
+            reg_ex = re.search('\d+', elem)
+            assert reg_ex
+            quantity = elem[reg_ex.start():reg_ex.end()]
+            quantity = (re.sub(',', '', quantity)).rjust(6, '0') + "000"
+            reg_ex = re.search('\d{1,2}%', elem)
+            assert reg_ex
+            tva = elem[reg_ex.start():reg_ex.end()]
+            tva = re.sub('%','', tva)
             if tva == "24":
                 if time.hour >= 7 and time.hour < 24:
                     tva = "1"
@@ -61,10 +75,8 @@ class CheckParser(object):
             subgroup = "1"
             group = "1"
             reg_ex = re.search('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*', elem)
-            if not reg_ex:
-                prod_name = item[3]
-            else:
-                prod_name = elem[reg_ex.start():reg_ex.end()]
+            assert reg_ex
+            prod_name = elem[reg_ex.start():reg_ex.end()]
             prod_name.strip(' ')
             final_check = '*' + prod_name + " " * (24 - len(prod_name)) + price + decimals + quantity + tva + subgroup \
                           + group + '\n'

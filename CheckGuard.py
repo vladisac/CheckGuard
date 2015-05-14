@@ -33,4 +33,4 @@ if __name__ == "__main__":
     observer.join()
 
     print("Check Guard stopped\n")
-    time.sleep(3)
+    time.sleep(1)
