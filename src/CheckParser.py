@@ -10,10 +10,11 @@ class CheckParser(object):
     def __init__(self, pos):
         self.check_data = []
         self.position = pos
+        if pos < 0:
+            raise ValueError("Initial position must be a natural number")
     
     def read_file(self):
         filename = "C:\\Vectron\\VPosPC\\files.txt"
-        delimiter = "**************************************************"
         with codecs.open(filename, "r", encoding="latin-1") as fh:
             fh.seek(self.position)
             line = fh.readline()
@@ -90,7 +91,8 @@ class CheckParser(object):
 
 
 def read_init_pos():
-    with open("C:\\Vectron\\pos.txt", "r") as fp:
+    pos_filepath = "C:\\Vectron\\pos.txt"
+    with open(pos_filepath, "r") as fp:
         init_pos = fp.readline()
         if init_pos == '':
             init_pos = 0
@@ -98,5 +100,6 @@ def read_init_pos():
 
 
 def write_init_pos(pos):
-    with open("C:\\Vectron\\pos.txt", "w") as fp:
+    pos_filepath = "C:\\Vectron\\pos.txt"
+    with open(pos_filepath, "w") as fp:
         fp.write(pos)
