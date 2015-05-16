@@ -4,7 +4,7 @@ __author__ = 'nero_luci'
 import time
 import CheckParser
 from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler, FileModifiedEvent
+from watchdog.events import FileSystemEventHandler
 
 
 class NewCheckHandler(FileSystemEventHandler):

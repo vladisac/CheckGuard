@@ -1,7 +1,7 @@
 __author__ = 'nero_luci'
 
 
-import CheckParser
+from src import CheckParser
 import unittest
 
 
