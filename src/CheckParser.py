@@ -34,7 +34,8 @@ class CheckParser(object):
                 line = fh.readline()
             self.position = fh.tell()
 
-    def write_2_file(self, to_print):
+    @staticmethod
+    def write_2_file(to_print):
         header_line = "KARAT\n"
         footer_line = "T0000010000 TOTAL\nEND KARAT\n"
         filename = "C:\\Listener\\bon.txt"
@@ -44,7 +45,8 @@ class CheckParser(object):
                 fp.write(item)
             fp.write(footer_line)
 
-    def execute_batch_file(self):
+    @staticmethod
+    def execute_batch_file():
         batch_file_path = "C:\\Listener\\start.bat"
         print_job = Popen(batch_file_path, shell=True)
         stdout, stderr = print_job.communicate()
@@ -65,9 +67,9 @@ class CheckParser(object):
             reg_ex = re.search('\d{1,2}%', elem)
             assert reg_ex
             tva = elem[reg_ex.start():reg_ex.end()]
-            tva = re.sub('%','', tva)
+            tva = re.sub('%', '', tva)
             if tva == "24":
-                if time.hour >= 7 and time.hour < 24:
+                if 7 <= time.hour < 24:
                     tva = "1"
                 else:
                     tva = "2"
@@ -82,9 +84,8 @@ class CheckParser(object):
             final_check = '*' + prod_name + " " * (24 - len(prod_name)) + price + decimals + quantity + tva + subgroup \
                           + group + '\n'
             check_to_print.append(final_check)
-        self.write_2_file(check_to_print)
-        self.execute_batch_file()
-
+        CheckParser.write_2_file(check_to_print)
+        CheckParser.execute_batch_file()
 
     def get_file_pos(self):
         return str(self.position)
