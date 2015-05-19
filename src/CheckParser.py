@@ -24,6 +24,8 @@ class CheckParser(object):
                     if not include:
                         include = True
                         line = fh.readline()
+                        if re.search("\*{2,}", line):
+                            include = False
                     else:
                         include = False
                 if include:
@@ -48,7 +50,7 @@ class CheckParser(object):
     @staticmethod
     def execute_batch_file():
         batch_file_path = "C:\\Listener\\start.bat"
-        print_job = Popen(batch_file_path, shell=True)
+        print_job = Popen(batch_file_path, shell=False)
         stdout, stderr = print_job.communicate()
 
     def generate_new_check(self):

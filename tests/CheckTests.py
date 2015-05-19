@@ -93,7 +93,28 @@ class RegexTest(unittest.TestCase):
         self.assertIsNotNone(reg_ex, "Regex name is not valid: test 2")
 
 
-testList = [ParserIniPosTest, FileWriteReadTest, RegexTest]
+class ParserReadCheckFile(unittest.TestCase):
+    """
+    For this test you should comment 2 lines in CheckParser.py read_file():
+    self.generate_new_check()
+    self.check_data = []
+    """
+    def setUp(self):
+        self.testObj = CheckParser.CheckParser(0)
+        self.expected_check_1 = ["1 x #2    bacsis  @ 0,01                0%  0,01  \r\n",
+                        "1 x #1    extra  @ 0,10                24%  0,10  \r\n"]
+        self.expected_check_2 = []
+
+    def test_data_1(self):
+        self.testObj.read_file()
+        self.assertListEqual(self.testObj.check_data, self.expected_check_1, "Lists are not equal: test 1")
+
+    # For this test the previous must be commented and files.txt should contain one check without products
+    #def test_data_2(self):
+    #    self.testObj.read_file()
+    #   self.assertListEqual(self.testObj.check_data, self.expected_check_2, "Lists are not equal: test 2")
+
+testList = [ParserIniPosTest, FileWriteReadTest, RegexTest, ParserReadCheckFile]
 testLoad = unittest.TestLoader()
 
 caseList = []
