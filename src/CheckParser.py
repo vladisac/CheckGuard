@@ -20,7 +20,7 @@ class CheckParser(object):
             line = fh.readline()
             include = False
             while line:
-                if re.search("\*+", line):
+                if re.search("\*{2,}", line):
                     if not include:
                         include = True
                         line = fh.readline()
@@ -56,16 +56,16 @@ class CheckParser(object):
         time = datetime.datetime.now()
         for elem in self.check_data:
             reg_ex = re.search('\d+\,\d+', elem)
-            assert reg_ex
+            assert reg_ex, "Price regex failed"
             price = elem[reg_ex.start():reg_ex.end()]
             price = (re.sub(',', '', price)).rjust(8, '0')
             decimals = "2"
             reg_ex = re.search('\d+', elem)
-            assert reg_ex
+            assert reg_ex, "Quantity regex failed"
             quantity = elem[reg_ex.start():reg_ex.end()]
             quantity = (re.sub(',', '', quantity)).rjust(6, '0') + "000"
             reg_ex = re.search('\d{1,2}%', elem)
-            assert reg_ex
+            assert reg_ex, "TVA regex failed"
             tva = elem[reg_ex.start():reg_ex.end()]
             tva = re.sub('%', '', tva)
             if tva == "24":
@@ -78,7 +78,7 @@ class CheckParser(object):
             subgroup = "1"
             group = "1"
             reg_ex = re.search('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*', elem)
-            assert reg_ex
+            assert reg_ex, "Product name regex failed"
             prod_name = elem[reg_ex.start():reg_ex.end()]
             prod_name.strip(' ')
             final_check = '*' + prod_name + " " * (24 - len(prod_name)) + price + decimals + quantity + tva + subgroup \
