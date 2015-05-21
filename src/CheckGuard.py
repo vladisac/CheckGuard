@@ -3,8 +3,12 @@ __author__ = 'nero_luci'
 
 import time
 import CheckParser
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+try:
+    from watchdog.observers import Observer
+    from watchdog.events import FileSystemEventHandler
+except ImportError:
+    print("You must have watchdog module installed")
+    exit()
 
 
 class NewCheckHandler(FileSystemEventHandler):
@@ -18,7 +22,7 @@ class NewCheckHandler(FileSystemEventHandler):
             print(e)
 
 if __name__ == "__main__":
-    print("Check Guard started...\n")
+    print("Check Guard started...\nTo stop CheckGuard please hit Ctrl + C\n")
     event_handler = NewCheckHandler()
     observer = Observer()
     observer.schedule(event_handler, path="C:\\Vectron\\VPosPC", recursive=False)
