@@ -19,7 +19,7 @@
  *
  *	    Filename: setup.py
  *	    This module is used to track dependencies and compile source
- *      using py2exe
+ *  using py2exe
  *
  *      Usage:  python setup.py py2exe
  *          Two directories will be created when you run your setup
