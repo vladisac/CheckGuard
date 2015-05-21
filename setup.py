@@ -19,15 +19,15 @@
  *
  *	    Filename: setup.py
  *	    This module is used to track dependencies and compile source
- *  using py2exe
+ *      using py2exe
  *
  *      Usage:  python setup.py py2exe
- *          Two directories will be created when you run your setup
- *          script, build and dist. The build directory is used as working
- *          space while your application is being packaged.
- *          It is safe to delete the build directory after your setup script
- *          has finished running. The files in the dist directory are the
- *          ones needed to run your application.
+ *              Two directories will be created when you run your setup
+ *              script, build and dist. The build directory is used as working
+ *              space while your application is being packaged.
+ *              It is safe to delete the build directory after your setup script
+ *              has finished running. The files in the dist directory are the
+ *              ones needed to run your application.
  *
  *	    Last revision: 05/21/2015
  *
