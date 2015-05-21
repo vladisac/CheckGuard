@@ -1,4 +1,30 @@
-__author__ = 'nero_luci'
+'''
+ *  Copyright (C) 2015 Touch Vectron
+ *
+ *  Author: Cornel Punga
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License version 2 as
+ *  published by the Free Software Foundation.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ *  MA 02110-1301, USA.
+ *
+ *	Filename: CheckParser.py
+ *	This module will parse files.txt (this is where the check from POS is written)
+ *  and then will output related information to bon.txt (file from where the printer
+ *  reads the check)
+ *
+ *	Last revision: 05/21/2015
+ *
+'''
 
 import codecs
 import re
