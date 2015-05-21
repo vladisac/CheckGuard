@@ -19,8 +19,8 @@
  *
  *	Filename: CheckParser.py
  *	This module will parse files.txt (this is where the check from POS is written)
- *  and then will output related information to bon.txt (file from where the printer
- *  reads the check)
+ *      and then will output related information to bon.txt (file from where the printer
+ *      reads the check)
  *
  *	Last revision: 05/21/2015
  *
