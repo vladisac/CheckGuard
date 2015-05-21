@@ -47,7 +47,12 @@ class NewCheckHandler(FileSystemEventHandler):
             print(e)
 
 if __name__ == "__main__":
-    print("Check Guard started...\nTo stop CheckGuard please hit Ctrl + C\n")
+    start_message = "Copyright (C) 2015 Touch Vectron\n" \
+                    "Check Guard version 1.0.0\n" \
+                    "Check Guard started...\n" \
+                    "To stop CheckGuard please hit Ctrl + C\n"
+    end_message = "Check Guard stopped\n"
+    print(start_message)
     event_handler = NewCheckHandler()
     observer = Observer()
     observer.schedule(event_handler, path="C:\\Vectron\\VPosPC", recursive=False)
@@ -61,5 +66,5 @@ if __name__ == "__main__":
 
     observer.join()
 
-    print("Check Guard stopped\n")
+    print(end_message)
     time.sleep(1)
