@@ -17,8 +17,8 @@
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  *  MA 02110-1301, USA.
  *
- *	    Filename: setup.py
- *	    This module is used to track dependencies and compile source
+ *	 Filename: setup.py
+ *	 This module is used to track dependencies and compile source
  *      using py2exe
  *
  *      Usage:  python setup.py py2exe
@@ -29,7 +29,7 @@
  *              has finished running. The files in the dist directory are the
  *              ones needed to run your application.
  *
- *	    Last revision: 05/21/2015
+ *	 Last revision: 05/21/2015
  *
 '''
 
