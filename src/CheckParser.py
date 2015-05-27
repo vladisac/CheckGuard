@@ -107,7 +107,7 @@ class CheckParser(object):
                 tva = "4"
             subgroup = "1"
             group = "1"
-            reg_ex = re.search('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*', elem)
+            reg_ex = re.search('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*[\S\s]?[a-zA-Z]*', elem)
             assert reg_ex, "Product name regex failed"
             prod_name = elem[reg_ex.start():reg_ex.end()]
             prod_name.strip(' ')
