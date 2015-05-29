@@ -29,6 +29,7 @@
 import time
 import CheckParser
 import logging
+import argparse
 try:
     from watchdog.observers import Observer
     from watchdog.events import FileSystemEventHandler
@@ -88,9 +89,14 @@ class NewCheckHandler(FileSystemEventHandler):
             logger.debug(e)
 
 if __name__ == "__main__":
+    # Command line arguments
+    parser = argparse.ArgumentParser(description="CheckGuard command line argument parser")
+    parser.add_argument('--log', help="level of logging", default="DEBUG", type=str)
+    arg_level = parser.parse_args()
     # Setup for logger
+    log_level = getattr(logging, arg_level.log.upper(), None)
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(level=log_level)
     file_handler = logging.FileHandler("{0}\{1}.log".format(r"C:\Listener", r"cg_error"))
     log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
     file_handler.setFormatter(log_formatter)

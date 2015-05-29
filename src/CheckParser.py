@@ -143,6 +143,7 @@ class CheckParser(object):
         CheckParser.write_2_file(check_to_print)
         CheckParser.execute_batch_file()
 
+
 def read_init_pos():
     pos_filepath = r"C:\Vectron\pos.txt"
     with open(pos_filepath, "r") as fp:
