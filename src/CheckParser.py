@@ -77,10 +77,9 @@ class CheckParser(object):
                         include = False
                 if include:
                     self.check_data.append(line)
-                if "= Cut =" in line:
+                if "= Cut =" in line and self.check_data != []:
                     self.generate_new_check()
                     self.check_data = []
-                    pass
                 line = fh.readline()
             self.position = fh.tell()
 
