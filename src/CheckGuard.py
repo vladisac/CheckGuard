@@ -28,6 +28,7 @@
 
 import time
 import CheckParser
+import logging
 try:
     from watchdog.observers import Observer
     from watchdog.events import FileSystemEventHandler
@@ -37,25 +38,68 @@ except ImportError:
 
 
 class NewCheckHandler(FileSystemEventHandler):
+    def __init__(self):
+        self.start_message = "Copyright (C) 2015 Touch Vectron\n" \
+                             "Check Guard version 0.1.1\n" \
+                             "Check Guard started...\n" \
+                             "To stop CheckGuard please hit Ctrl + C\n"
+        self.end_message = "Check Guard stopped\n"
+        self.user_err_msg = "*************************************\n" \
+                            "**  Eroare la retiparirea bonului  **\n" \
+                            "*************************************\n"
+
+    def on_start(self):
+        print(self.start_message)
+
+        pos_txt = CheckParser.read_init_pos()
+        end_pos = CheckParser.get_file_end_pos()
+
+        if (end_pos - pos_txt) > 0:
+            print("Exista bonuri neprintate")
+            print("Vrei sa le printez? Y/N")
+            user_ans = raw_input()
+            try:
+                assert isinstance(user_ans, str), "Bad user input"
+            except AssertionError as e:
+                logger.debug("{0}: {1}".format(e, user_ans))
+
+            if user_ans == 'Y' or user_ans == 'y':
+                try:
+                    check = CheckParser.CheckParser(pos_txt)
+                    check.read_file()
+                    CheckParser.write_init_pos(end_pos)
+                except Exception as e:
+                    print(self.user_err_msg)
+                    logger.debug(e)
+            else:
+                CheckParser.write_init_pos(end_pos)
+
+    def on_end(self):
+        print(self.end_message)
+
     def on_modified(self, event):
         try:
             start_pos = CheckParser.read_init_pos()
             check = CheckParser.CheckParser(start_pos)
             check.read_file()
-            CheckParser.write_init_pos(check.get_file_pos())
+            CheckParser.write_init_pos(check.position)
         except Exception as e:
-            print(e)
+            print(self.user_err_msg)
+            logger.debug(e)
 
 if __name__ == "__main__":
-    start_message = "Copyright (C) 2015 Touch Vectron\n" \
-                    "Check Guard version 1.0.0\n" \
-                    "Check Guard started...\n" \
-                    "To stop CheckGuard please hit Ctrl + C\n"
-    end_message = "Check Guard stopped\n"
-    print(start_message)
+    # Setup for logger
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
+    file_handler = logging.FileHandler("{0}\{1}.log".format(r"C:\Listener", r"cg_error"))
+    log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
+    file_handler.setFormatter(log_formatter)
+    logger.addHandler(file_handler)
+
     event_handler = NewCheckHandler()
+    event_handler.on_start()
     observer = Observer()
-    observer.schedule(event_handler, path="C:\\Vectron\\VPosPC", recursive=False)
+    observer.schedule(event_handler, path=r"C:\Vectron\VPosPC", recursive=False)
     observer.start()
 
     try:
@@ -66,5 +110,5 @@ if __name__ == "__main__":
 
     observer.join()
 
-    print(end_message)
+    event_handler.on_end()
     time.sleep(1)

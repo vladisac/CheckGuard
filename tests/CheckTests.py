@@ -28,7 +28,7 @@ class ParserIniPosTest(unittest.TestCase):
 
 class FileWriteReadTest(unittest.TestCase):
     def setUp(self):
-        self.filename = "C:\\Vectron\\pos.txt"
+        self.filename = r"C:\Users\nero_luci\Desktop\GitHub\CheckGuard\tests\pos.txt"
         print("FileWriteRead SetUp executed")
 
     def tearDown(self):
@@ -100,7 +100,8 @@ class ParserReadCheckFile(unittest.TestCase):
     self.check_data = []
     """
     def setUp(self):
-        self.testObj = CheckParser.CheckParser(0)
+        self.testObj = CheckParser.CheckParser(0, r"C:\Users\nero_luci\Desktop\GitHub\CheckGuard\tests\files.txt")
+        self.testObj2 = CheckParser.CheckParser(0, r"C:\Users\nero_luci\Desktop\GitHub\CheckGuard\tests\files2.txt")
         self.expected_check_1 = ["1 x #2    bacsis  @ 0,01                0%  0,01  \r\n",
                         "1 x #1    extra  @ 0,10                24%  0,10  \r\n"]
         self.expected_check_2 = []
@@ -109,10 +110,9 @@ class ParserReadCheckFile(unittest.TestCase):
         self.testObj.read_file()
         self.assertListEqual(self.testObj.check_data, self.expected_check_1, "Lists are not equal: test 1")
 
-    # For this test the previous must be commented and files.txt should contain one check without products
-    #def test_data_2(self):
-    #    self.testObj.read_file()
-    #   self.assertListEqual(self.testObj.check_data, self.expected_check_2, "Lists are not equal: test 2")
+    def test_data_2(self):
+        self.testObj2.read_file()
+        self.assertListEqual(self.testObj2.check_data, self.expected_check_2, "Lists are not equal: test 2")
 
 testList = [ParserIniPosTest, FileWriteReadTest, RegexTest, ParserReadCheckFile]
 testLoad = unittest.TestLoader()

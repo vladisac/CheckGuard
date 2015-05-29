@@ -33,15 +33,36 @@ import datetime
 
 
 class CheckParser(object):
-    def __init__(self, pos):
+    def __init__(self, position, filename=None):
         self.check_data = []
-        self.position = pos
-        if pos < 0:
-            raise ValueError("Initial position must be a natural number")
-    
+        self.position = position
+        self.filename = filename
+
+    @property
+    def position(self):
+        return self._position
+
+    @position.setter
+    def position(self, value):
+        if value is not None:
+            if value >= 0:
+                self._position = value
+            else:
+                raise ValueError("Initial position must be a natural number")
+
+    @property
+    def filename(self):
+        return self._filename
+
+    @filename.setter
+    def filename(self, value):
+        if value is not None:
+            self._filename = value
+        else:
+            self._filename = r"C:\Vectron\VPosPC\files.txt"
+
     def read_file(self):
-        filename = "C:\\Vectron\\VPosPC\\files.txt"
-        with codecs.open(filename, "r", encoding="latin-1") as fh:
+        with codecs.open(self.filename, "r", encoding="latin-1") as fh:
             fh.seek(self.position)
             line = fh.readline()
             include = False
@@ -59,6 +80,7 @@ class CheckParser(object):
                 if "= Cut =" in line:
                     self.generate_new_check()
                     self.check_data = []
+                    pass
                 line = fh.readline()
             self.position = fh.tell()
 
@@ -66,8 +88,8 @@ class CheckParser(object):
     def write_2_file(to_print):
         header_line = "KARAT\n"
         footer_line = "T0000010000 TOTAL\nEND KARAT\n"
-        filename = "C:\\Listener\\bon.txt"
-        with open(filename, "w") as fp:
+        file_bon = r"C:\Listener\bon.txt"
+        with open(file_bon, "w") as fp:
             fp.write(header_line)
             for item in to_print:
                 fp.write(item)
@@ -75,7 +97,7 @@ class CheckParser(object):
 
     @staticmethod
     def execute_batch_file():
-        batch_file_path = "C:\\Listener\\start.bat"
+        batch_file_path = r"C:\Listener\start.bat"
         print_job = Popen(batch_file_path, shell=False)
         stdout, stderr = print_job.communicate()
 
@@ -93,18 +115,23 @@ class CheckParser(object):
             quantity = elem[reg_ex.start():reg_ex.end()]
             quantity = (re.sub(',', '', quantity)).rjust(6, '0') + "000"
             reg_ex = re.search('\d{1,2}%', elem)
-            assert reg_ex, "TVA regex failed"
-            tva = elem[reg_ex.start():reg_ex.end()]
-            tva = re.sub('%', '', tva)
-            if tva == "24":
-                if 7 <= time.hour < 24:
-                    tva = "1"
+            if reg_ex:
+                tva = elem[reg_ex.start():reg_ex.end()]
+                tva = re.sub('%', '', tva)
+                if tva == "24":
+                    if 7 <= time.hour < 24:
+                        tva = "1"
+                    else:
+                        tva = "2"
+                elif tva == "9":
+                    tva = "3"
                 else:
-                    tva = "2"
-            elif tva == "9":
-                tva = "3"
+                    tva = "4"
             else:
-                tva = "4"
+                if 7 <= time.hour < 24:
+                        tva = "1"
+                else:
+                        tva = "2"
             subgroup = "1"
             group = "1"
             reg_ex = re.search('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*[\S\s]?[a-zA-Z]*', elem)
@@ -117,12 +144,8 @@ class CheckParser(object):
         CheckParser.write_2_file(check_to_print)
         CheckParser.execute_batch_file()
 
-    def get_file_pos(self):
-        return str(self.position)
-
-
 def read_init_pos():
-    pos_filepath = "C:\\Vectron\\pos.txt"
+    pos_filepath = r"C:\Vectron\pos.txt"
     with open(pos_filepath, "r") as fp:
         init_pos = fp.readline()
         if init_pos == '':
@@ -131,6 +154,19 @@ def read_init_pos():
 
 
 def write_init_pos(pos):
-    pos_filepath = "C:\\Vectron\\pos.txt"
+    if not isinstance(pos, str):
+        try:
+            pos = str(pos)
+        except (ValueError, TypeError):
+            pos = "0"
+
+    pos_filepath = r"C:\Vectron\pos.txt"
     with open(pos_filepath, "w") as fp:
         fp.write(pos)
+
+
+def get_file_end_pos():
+        filename = r"C:\Vectron\VPosPC\files.txt"
+        with open(filename, "r") as ff:
+            ff.seek(0, 2)
+            return int(ff.tell())
