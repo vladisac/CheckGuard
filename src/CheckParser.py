@@ -22,7 +22,7 @@
  *      and then will output related information to bon.txt (file from where the printer
  *      reads the check)
  *
- *	Last revision: 05/21/2015
+ *	Last revision: 05/29/2015
  *
 '''
 
