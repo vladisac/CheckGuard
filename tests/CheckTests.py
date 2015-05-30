@@ -49,49 +49,46 @@ class FileWriteReadTest(unittest.TestCase):
 
 class RegexTest(unittest.TestCase):
     def setUp(self):
-        self.test_line_1 = "1 x #2    mere pere  @ 0,01                0%  0,01"
-        self.test_line_2 = "2 x #33    hubba bubba  @ 12,50                24%  0,01"
+        self.test_list_1 = [
+                            "1 x #2    mere pere  @ 0,01                0%  0,01",
+                            "2 x #33    hubba bubba  @ 12,50                9%  0,01",
+                            "1 x #103  Cappuccino  @ 7,00             24%  7,00",
+                            "1 x #2400 Dorna Apa  @ 555,70              24%  5,70",
+                            "1 x #307  Frappe  @ 7,50                   9% 7,50",
+                            "25 x #101  Cafea  @ 5,50                  24%  11,00",
+                            "2 x #2101 Bere  @ 6,70                   24%   13,40",
+                            "1 x #2327 Lemonade  @ 6,00             0%     6,00",
+                            "1 x #2310 Fresh  @ 8,80                  16%   8,80",
+                            "2 x #2332 Lemonade  @ 9,90               11%  19,80"
+                            ]
         self.test_line_3 = "cnaldknpinda    %  @ xx \/'*&"
 
     def tearDown(self):
         pass
 
     def test_price_regex_1(self):
-        reg_ex = re.search('\d+\,\d+', self.test_line_1)
-        self.assertIsNotNone(reg_ex, "Regex price is not valid: test 1")
-
-    def test_price_regex_2(self):
-        reg_ex = re.search('\d+\,\d+', self.test_line_2)
-        self.assertIsNotNone(reg_ex, "Regex price is not valid: test 2")
+        for line in self.test_list_1:
+            reg_ex = re.search('\d+\,\d+', line)
+            self.assertIsNotNone(reg_ex, "Regex price is not valid: test 1")
 
     def test_qty_regex_1(self):
-        reg_ex = re.search('\d+', self.test_line_1)
-        self.assertIsNotNone(reg_ex, "Regex quantity is not valid: test 1")
+        for line in self.test_list_1:
+            reg_ex = re.search('\d+', line)
+            self.assertIsNotNone(reg_ex, "Regex quantity is not valid: test 1")
 
     def test_qty_regex_2(self):
-        reg_ex = re.search('\d+', self.test_line_2)
-        self.assertIsNotNone(reg_ex, "Regex quantity is not valid: test 2")
-
-    def test_qty_regex_3(self):
         reg_ex = re.search('\d+', self.test_line_3)
         self.assertIsNone(reg_ex, "Regex quantity is not valid: test 3")
 
     def test_tva_regex_1(self):
-        reg_ex = re.search('\d{1,2}%', self.test_line_1)
-        self.assertIsNotNone(reg_ex, "Regex tva is not valid: test 1")
-
-    def test_tva_regex_2(self):
-        reg_ex = re.search('\d{1,2}%', self.test_line_2)
-        self.assertIsNotNone(reg_ex, "Regex tva is not valid: test 2")
+        for line in self.test_list_1:
+            reg_ex = re.search('\d{1,2}%', line)
+            self.assertIsNotNone(reg_ex, "Regex tva is not valid: test 1")
 
     def test_name_regex_1(self):
-        reg_ex = re.search('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*', self.test_line_1)
-        self.assertIsNotNone(reg_ex, "Regex name is not valid: test 1")
-
-    def test_name_regex_2(self):
-        reg_ex = re.search('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*', self.test_line_3)
-        self.assertIsNotNone(reg_ex, "Regex name is not valid: test 2")
-
+        for line in self.test_list_1:
+            reg_ex = re.search('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*[\S\s]?[a-zA-Z]*', line)
+            self.assertIsNotNone(reg_ex, "Regex name is not valid: test 1")
 
 class ParserReadCheckFile(unittest.TestCase):
     """
