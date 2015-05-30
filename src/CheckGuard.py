@@ -25,7 +25,6 @@
  *
 '''
 
-
 import time
 import CheckParser
 import logging
@@ -46,8 +45,11 @@ class NewCheckHandler(FileSystemEventHandler):
                              "To stop CheckGuard please hit Ctrl + C\n"
         self.end_message = "Check Guard stopped\n"
         self.user_err_msg = "*************************************\n" \
-                            "**  Eroare la retiparirea bonului  **\n" \
+                            "**  Eroare la tiparirea bonului    **\n" \
                             "*************************************\n"
+        self.bad_input = "Ai introdus informatie gresita!!!"
+        self.reprint = "Exista bonuri neprintate\n" \
+                       "Vrei sa le printez? Y/N"
 
     def on_start(self):
         print(self.start_message)
@@ -56,24 +58,27 @@ class NewCheckHandler(FileSystemEventHandler):
         end_pos = CheckParser.get_file_end_pos()
 
         if (end_pos - pos_txt) > 0:
-            print("Exista bonuri neprintate")
-            print("Vrei sa le printez? Y/N")
+            print(self.reprint)
             user_ans = raw_input()
             try:
                 assert isinstance(user_ans, str), "Bad user input"
             except AssertionError as e:
                 logger.debug("{0}: {1}".format(e, user_ans))
+                print(self.bad_input)
 
             if user_ans == 'Y' or user_ans == 'y':
                 try:
                     check = CheckParser.CheckParser(pos_txt)
                     check.read_file()
                     CheckParser.write_init_pos(end_pos)
+                    print("Retiparire -> Status: OK")
                 except Exception as e:
                     print(self.user_err_msg)
                     logger.debug(e)
             else:
                 CheckParser.write_init_pos(end_pos)
+                print("Bonurile existente au fost omise")
+                print("Omitere -> Status: OK")
 
     def on_end(self):
         print(self.end_message)
@@ -84,6 +89,7 @@ class NewCheckHandler(FileSystemEventHandler):
             check = CheckParser.CheckParser(start_pos)
             check.read_file()
             CheckParser.write_init_pos(check.position)
+            print("Tiparire -> Status: OK!")
         except Exception as e:
             print(self.user_err_msg)
             logger.debug(e)
