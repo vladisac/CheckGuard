@@ -29,6 +29,7 @@ from time import sleep
 from argparse import ArgumentParser
 from CheckGuard import *
 
+
 def main():
     parser = ArgumentParser(description="CheckGuard command line argument parser")
     parser.add_argument('--log', help="level of logging", default=None, type=str)

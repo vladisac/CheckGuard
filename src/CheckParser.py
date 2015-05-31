@@ -112,7 +112,7 @@ class CheckParser(object):
         time = datetime.now()
         for elem in self.check_data:
             check_logger.debug("{0}: {1}".format(stack()[0][3], elem))
-            backup_list = list(filter(lambda x: x != '',elem.split(' ')))
+            backup_list = list(filter(lambda x: x != '', elem.split(' ')))
             reg_ex = search('\d+\,\d+', elem)
             if reg_ex:
                 price = elem[reg_ex.start():reg_ex.end()]
