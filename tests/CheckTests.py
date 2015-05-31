@@ -1,9 +1,8 @@
-__author__ = 'nero_luci'
 
-
-from src import CheckParser
+import CheckParser
 import re
 import unittest
+import itertools
 
 
 class ParserIniPosTest(unittest.TestCase):
@@ -50,45 +49,57 @@ class FileWriteReadTest(unittest.TestCase):
 class RegexTest(unittest.TestCase):
     def setUp(self):
         self.test_list_1 = [
-                            "1 x #2    mere pere  @ 0,01                0%  0,01",
-                            "2 x #33    hubba bubba  @ 12,50                9%  0,01",
-                            "1 x #103  Cappuccino  @ 7,00             24%  7,00",
-                            "1 x #2400 Dorna Apa  @ 555,70              24%  5,70",
-                            "1 x #307  Frappe  @ 7,50                   9% 7,50",
+                            "2 x #2    mere pere  @ 0,01                0%  0,01",
+                            "1 x #33    hubba bubba  @ 12,50                9%  0,01",
+                            "7 x #103  Cappuccino  @ 7,00             24%  7,00",
+                            "5 x #2400 Dorna Apa  @ 555,70              24%  5,70",
+                            "3 x #307  Frappe  @ 7,50                   9% 7,50",
                             "25 x #101  Cafea  @ 5,50                  24%  11,00",
                             "2 x #2101 Bere  @ 6,70                   24%   13,40",
-                            "1 x #2327 Lemonade  @ 6,00             0%     6,00",
-                            "1 x #2310 Fresh  @ 8,80                  16%   8,80",
-                            "2 x #2332 Lemonade  @ 9,90               11%  19,80"
+                            "66 x #2327 Lemonade  @ 6,00             0%     6,00",
+                            "8 x #2310 Fresh  @ 8,80                  16%   8,80",
+                            "999 x #2332 Whisky&Cola  @ 9,90               11%  19,80"
                             ]
         self.test_line_3 = "cnaldknpinda    %  @ xx \/'*&"
+        self.prices = ['0,01', '12,50', '7,00', '555,70', '7,50', '5,50', '6,70', '6,00', '8,80', '9,90']
+        self.qtys = ['2', '1', '7', '5', '3', '25', '2', '66', '8', '999']
+        self.tvas = ['0%', '9%', '24%', '24%', '9%', '24%', '24%', '0%', '16%', '11%']
+        self.names = [
+                    'mere pere', 'hubba bubba', 'Cappuccino', 'Dorna Apa', 'Frappe', 'Cafea', 'Bere',
+                    'Lemonade', 'Fresh', 'Whisky&Cola'
+                    ]
 
     def tearDown(self):
         pass
 
     def test_price_regex_1(self):
-        for line in self.test_list_1:
+
+        for line, price in itertools.izip(self.test_list_1, self.prices):
             reg_ex = re.search('\d+\,\d+', line)
-            self.assertIsNotNone(reg_ex, "Regex price is not valid: test 1")
+            #self.assertIsNotNone(reg_ex, "Regex price is not valid: test 1")
+            self.assertEqual(line[reg_ex.start():reg_ex.end()], price, "Price not equal")
 
     def test_qty_regex_1(self):
-        for line in self.test_list_1:
+        for line, qty in itertools.izip(self.test_list_1, self.qtys):
             reg_ex = re.search('\d+', line)
-            self.assertIsNotNone(reg_ex, "Regex quantity is not valid: test 1")
+            #self.assertIsNotNone(reg_ex, "Regex quantity is not valid: test 1")
+            self.assertEqual(line[reg_ex.start():reg_ex.end()], qty, "Quantity not equal")
 
     def test_qty_regex_2(self):
         reg_ex = re.search('\d+', self.test_line_3)
         self.assertIsNone(reg_ex, "Regex quantity is not valid: test 3")
 
     def test_tva_regex_1(self):
-        for line in self.test_list_1:
+        for line, tva in itertools.izip(self.test_list_1, self.tvas):
             reg_ex = re.search('\d{1,2}%', line)
-            self.assertIsNotNone(reg_ex, "Regex tva is not valid: test 1")
+            #self.assertIsNotNone(reg_ex, "Regex tva is not valid: test 1")
+            self.assertEqual(line[reg_ex.start():reg_ex.end()], tva, "Tva not equal")
 
     def test_name_regex_1(self):
-        for line in self.test_list_1:
+        for line, name in itertools.izip(self.test_list_1, self.names):
             reg_ex = re.search('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*[\S\s]?[a-zA-Z]*', line)
-            self.assertIsNotNone(reg_ex, "Regex name is not valid: test 1")
+            #self.assertIsNotNone(reg_ex, "Regex name is not valid: test 1")
+            self.assertEqual(line[reg_ex.start():reg_ex.end()].strip(' '), name, "Name not equal")
 
 class ParserReadCheckFile(unittest.TestCase):
     """
