@@ -25,20 +25,19 @@
  *
 '''
 
-import time
 import CheckParser
-import logging
-import argparse
+from CheckLogger import check_logger
 try:
     from watchdog.observers import Observer
-    from watchdog.events import FileSystemEventHandler
+    from watchdog.events import PatternMatchingEventHandler
 except ImportError:
     print("You must have watchdog module installed")
     exit()
 
 
-class NewCheckHandler(FileSystemEventHandler):
+class NewCheckHandler(PatternMatchingEventHandler):
     def __init__(self):
+        super(NewCheckHandler, self).__init__(patterns=[r'C:\Vectron\VPosPC\files.txt'])
         self.start_message = "Copyright (C) 2015 Touch Vectron\n" \
                              "Check Guard version 0.1.1\n" \
                              "Check Guard started...\n" \
@@ -63,7 +62,7 @@ class NewCheckHandler(FileSystemEventHandler):
             try:
                 assert isinstance(user_ans, str), "Bad user input"
             except AssertionError as e:
-                logger.debug("{0}: {1}".format(e, user_ans))
+                check_logger.debug("{0}: {1}".format(e, user_ans))
                 print(self.bad_input)
 
             if user_ans == 'Y' or user_ans == 'y':
@@ -71,10 +70,9 @@ class NewCheckHandler(FileSystemEventHandler):
                     check = CheckParser.CheckParser(pos_txt)
                     check.read_file()
                     CheckParser.write_init_pos(end_pos)
-                    print("Retiparire -> Status: OK")
                 except Exception as e:
                     print(self.user_err_msg)
-                    logger.debug(e)
+                    check_logger.debug(e)
             else:
                 CheckParser.write_init_pos(end_pos)
                 print("Bonurile existente au fost omise")
@@ -89,38 +87,6 @@ class NewCheckHandler(FileSystemEventHandler):
             check = CheckParser.CheckParser(start_pos)
             check.read_file()
             CheckParser.write_init_pos(check.position)
-            print("Tiparire -> Status: OK!")
         except Exception as e:
             print(self.user_err_msg)
-            logger.debug(e)
-
-if __name__ == "__main__":
-    # Command line arguments
-    parser = argparse.ArgumentParser(description="CheckGuard command line argument parser")
-    parser.add_argument('--log', help="level of logging", default="DEBUG", type=str)
-    arg_level = parser.parse_args()
-    # Setup for logger
-    log_level = getattr(logging, arg_level.log.upper(), None)
-    logger = logging.getLogger()
-    logger.setLevel(level=log_level)
-    file_handler = logging.FileHandler("{0}\{1}.log".format(r"C:\Listener", r"cg_error"))
-    log_formatter = logging.Formatter("%(asctime)s [%(threadName)-12.12s] [%(levelname)-5.5s]  %(message)s")
-    file_handler.setFormatter(log_formatter)
-    logger.addHandler(file_handler)
-
-    event_handler = NewCheckHandler()
-    event_handler.on_start()
-    observer = Observer()
-    observer.schedule(event_handler, path=r"C:\Vectron\VPosPC", recursive=False)
-    observer.start()
-
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
-
-    observer.join()
-
-    event_handler.on_end()
-    time.sleep(1)
+            check_logger.debug(e)
