@@ -40,4 +40,4 @@ except ImportError:
     print("You must have py2exe module installed")
     exit()
 
-setup(console=['CheckGuard.py'], requires=['watchdog', 'py2exe'])
+setup(console=['main.py'], requires=['watchdog', 'py2exe'])
