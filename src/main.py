@@ -48,7 +48,6 @@ def main():
     check_logger.info("{}".format("----- Observer start -----"))
     try:
         while True:
-            check_logger.debug("{}".format("----- while loop -----"))
             sleep(1)
     except KeyboardInterrupt:
         observer.stop()
