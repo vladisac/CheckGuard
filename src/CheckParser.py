@@ -129,18 +129,18 @@ class CheckParser(object):
             reg_ex = search('\d{1,2}%', elem)
             if reg_ex:
                 tva = elem[reg_ex.start():reg_ex.end()]
-                tva = sub('%', '', tva)
-                if tva == "24":
-                    if 7 <= time.hour < 24:
-                        tva = "1"
-                    else:
-                        tva = "2"
-                elif tva == "9":
-                    tva = "3"
-                else:
-                    tva = "4"
             else:
                 tva = backup_list[6]
+            tva = sub('%', '', tva)
+            if tva == "24":
+                if 7 <= time.hour < 24:
+                    tva = "1"
+                else:
+                    tva = "2"
+            elif tva == "9":
+                tva = "3"
+            else:
+                tva = "4"
             subgroup = "1"
             group = "1"
             reg_ex = search('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*[\S\s]?[a-zA-Z]*', elem)
