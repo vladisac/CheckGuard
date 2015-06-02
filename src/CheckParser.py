@@ -27,7 +27,6 @@
 '''
 
 from datetime import datetime
-from codecs import open as copen
 from re import search, sub
 from inspect import stack
 from subprocess import Popen
@@ -39,6 +38,8 @@ class CheckParser(object):
         self.check_data = []
         self.position = position
         self.filename = filename
+        self.cash = None
+        self.card = None
 
     @property
     def position(self):
@@ -65,51 +66,37 @@ class CheckParser(object):
 
     def read_file(self):
         check_logger.debug("{0}: {1}".format(stack()[0][3], "_____START_____"))
-        with copen(self.filename, "r", encoding="latin-1") as fh:
+        with open(self.filename, "rb") as fh:
+            check_logger.debug("{0}: {1}".format(stack()[0][3], "file.txt opened"))
             fh.seek(self.position)
             line = fh.readline()
-            include = False
+            check_logger.debug("{0}: {1}".format(stack()[0][3], line))
+            delimiter = "**************************************************"
             while line:
-                if search("\*{2,}", line):
-                    if not include:
-                        include = True
+                if delimiter in line:
+                    line = fh.readline()
+                    check_logger.debug("{0}: {1}".format(stack()[0][3], line))
+                    while delimiter not in line:
+                        self.check_data.append(line)
                         line = fh.readline()
-                        if search("\*{2,}", line):
-                            include = False
-                    else:
-                        include = False
-                if include:
-                    self.check_data.append(line)
+                        check_logger.debug("{0}: {1}".format(stack()[0][3], line))
+                line = fh.readline()
+                check_logger.debug("{0}: {1}".format(stack()[0][3], line))
+                if "Cash" in line:
+                    self.cash = line
+                if "Plata card" in line:
+                    self.card = line
                 if "= Cut =" in line and self.check_data != []:
                     check_logger.debug("{0}: {1}".format(stack()[0][3], self.check_data))
                     self.generate_new_check()
                     self.check_data = []
-                line = fh.readline()
             self.position = fh.tell()
             check_logger.debug("{0}: {1}".format(stack()[0][3], "_____END_____"))
-
-    @staticmethod
-    def write_2_file(to_print):
-        header_line = "KARAT\n"
-        footer_line = "T0000010000 TOTAL\nEND KARAT\n"
-        file_bon = r"C:\Listener\bon.txt"
-        check_logger.debug("{0}: {1}".format(stack()[0][3], to_print))
-        with open(file_bon, "w") as fp:
-            fp.write(header_line)
-            for item in to_print:
-                fp.write(item)
-            fp.write(footer_line)
-        print("Tiparire -> Status: OK!")
-
-    @staticmethod
-    def execute_batch_file():
-        batch_file_path = r"C:\Listener\start.bat"
-        print_job = Popen(batch_file_path, shell=False)
-        stdout, stderr = print_job.communicate()
 
     def generate_new_check(self):
         check_to_print = []
         time = datetime.now()
+        check_logger.debug("{0}: {1}".format(stack()[0][3], "starting creation of products and payment"))
         for elem in self.check_data:
             check_logger.debug("{0}: {1}".format(stack()[0][3], elem))
             backup_list = list(filter(lambda x: x != '', elem.split(' ')))
@@ -153,8 +140,49 @@ class CheckParser(object):
                           + group + '\n'
             check_logger.debug("{0}: {1}".format(stack()[0][3], final_check))
             check_to_print.append(final_check)
+        if self.cash:
+            backup_list = list(filter(lambda x: x != '', self.cash.split(' ')))
+            reg_ex = search('\d+\,\d+', self.cash)
+            if reg_ex:
+                price = self.cash[reg_ex.start():reg_ex.end()]
+            else:
+                price = backup_list[1]
+            price = (sub(',', '', price)).rjust(8, '0')
+            check_to_print.append("RQ0CASH      " + price + "2\n")
+            self.cash = None
+        if self.card:
+            backup_list = list(filter(lambda x: x != '', self.card.split(' ')))
+            reg_ex = search('\d+\,\d+', self.card)
+            if reg_ex:
+                price = self.card[reg_ex.start():reg_ex.end()]
+            else:
+                price = backup_list[2]
+            price = (sub(',', '', price)).rjust(8, '0')
+            check_to_print.append("RQ1CARD      " + price + "2\n")
+            self.card = None
+        check_logger.debug("{0}: {1}".format(stack()[0][3], "finished creation of products and payment"))
         CheckParser.write_2_file(check_to_print)
         CheckParser.execute_batch_file()
+
+    @staticmethod
+    def write_2_file(to_print):
+        header_line = "KARAT\n"
+        footer_line = "T0000010000 TOTAL\nEND KARAT\n"
+        file_bon = r"C:\Listener\bon.txt"
+        check_logger.debug("{0}: {1}".format(stack()[0][3], to_print))
+        with open(file_bon, "w") as fp:
+            fp.write(header_line)
+            for item in to_print:
+                fp.write(item)
+            fp.write(footer_line)
+        print("Tiparire -> Status: OK!")
+
+    @staticmethod
+    def execute_batch_file():
+        batch_file_path = r"C:\Listener\start.bat"
+        check_logger.debug("{0}: {1}".format(stack()[0][3], "execute batch file"))
+        print_job = Popen(batch_file_path, shell=False)
+        stdout, stderr = print_job.communicate()
 
 
 def read_init_pos():
