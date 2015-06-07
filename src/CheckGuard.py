@@ -27,6 +27,7 @@
 
 import CheckParser
 from CheckLogger import check_logger
+from time import sleep
 try:
     from watchdog.observers import Observer
     from watchdog.events import PatternMatchingEventHandler
@@ -85,6 +86,7 @@ class NewCheckHandler(PatternMatchingEventHandler):
         try:
             start_pos = CheckParser.read_init_pos()
             check = CheckParser.CheckParser(start_pos)
+            sleep(1)
             check.read_file()
             CheckParser.write_init_pos(check.position)
         except Exception as e:

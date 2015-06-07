@@ -25,7 +25,6 @@
  *
 '''
 
-from time import sleep
 from argparse import ArgumentParser
 from CheckGuard import *
 
