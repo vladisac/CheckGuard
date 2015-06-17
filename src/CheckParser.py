@@ -27,6 +27,7 @@
 '''
 
 from datetime import datetime
+from time import sleep
 from re import search, sub
 from inspect import stack
 from subprocess import Popen
@@ -36,6 +37,7 @@ from CheckLogger import check_logger
 class CheckParser(object):
     def __init__(self, position, filename=None):
         self.check_data = []
+        self.check_to_print = []
         self.position = position
         self.filename = filename
         self.cash = None
@@ -89,80 +91,77 @@ class CheckParser(object):
                 if "= Cut =" in line and self.check_data != []:
                     check_logger.debug("{0}: {1}".format(stack()[0][3], self.check_data))
                     self.generate_new_check()
+                    CheckParser.write_2_file(self.check_to_print)
+                    self.check_to_print = []
+                    CheckParser.execute_batch_file()
                     self.check_data = []
+                    sleep(0.5)
             self.position = fh.tell()
             check_logger.debug("{0}: {1}".format(stack()[0][3], "_____END_____"))
 
+    def payment_method(self):
+        if self.cash:
+            backup_list = list(filter(lambda x: x != '', self.cash.split(' ')))
+            price = CheckParser.get_field_value('\d+\,\d+', self.cash, backup_list, 1, ',', '', 8)
+            self.check_to_print.append("RQ0CASH      " + price + "2\n")
+            self.cash = None
+        if self.card:
+            backup_list = list(filter(lambda x: x != '', self.card.split(' ')))
+            price = CheckParser.get_field_value('\d+\,\d+', self.card, backup_list, 2, ',', '', 8)
+            self.check_to_print.append("RQ1CARD      " + price + "2\n")
+            self.card = None
+
     def generate_new_check(self):
-        check_to_print = []
-        time = datetime.now()
         check_logger.debug("{0}: {1}".format(stack()[0][3], "starting creation of products and payment"))
         for elem in self.check_data:
             check_logger.debug("{0}: {1}".format(stack()[0][3], elem))
             backup_list = list(filter(lambda x: x != '', elem.split(' ')))
-            reg_ex = search('\d+\,\d+', elem)
-            if reg_ex:
-                price = elem[reg_ex.start():reg_ex.end()]
-            else:
-                price = backup_list[5]
-            price = (sub(',', '', price)).rjust(8, '0')
+            price = CheckParser.get_field_value('\d+\,\d+', elem, backup_list, 5, ',', '', 8)
             decimals = "2"
-            reg_ex = search('\d+', elem)
-            if reg_ex:
-                quantity = elem[reg_ex.start():reg_ex.end()]
-            else:
-                quantity = backup_list[0]
-            quantity = (sub(',', '', quantity)).rjust(6, '0') + "000"
-            reg_ex = search('\d{1,2}%', elem)
-            if reg_ex:
-                tva = elem[reg_ex.start():reg_ex.end()]
-            else:
-                tva = backup_list[6]
-            tva = sub('%', '', tva)
-            if tva == "24":
-                if 7 <= time.hour < 24:
-                    tva = "1"
-                else:
-                    tva = "2"
-            elif tva == "9":
-                tva = "3"
-            else:
-                tva = "4"
+            quantity = CheckParser.get_field_value('\d+', elem, backup_list, 0, ',', '', 6) + "000"
+            tva = CheckParser.get_field_value('\d{1,2}%', elem, backup_list, 6, '%', '')
+            tva = CheckParser.tva_by_time(tva)
             subgroup = "1"
             group = "1"
-            reg_ex = search('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*[\S\s]?[a-zA-Z]*', elem)
-            if reg_ex:
-                prod_name = elem[reg_ex.start():reg_ex.end()]
-                prod_name.strip(' ')
-            else:
-                prod_name = backup_list[3]
-            final_check = '*' + prod_name + " " * (24 - len(prod_name)) + price + decimals + quantity + tva + subgroup \
-                          + group + '\n'
+            prod_name = CheckParser.get_field_value('[a-zA-Z]{2,}[\S\s]?[a-zA-Z]*[\S\s]?[a-zA-Z]*',
+                                                    elem, backup_list, 3)
+            final_check = '*' + prod_name + " " * (24 - len(prod_name)) + price + decimals + quantity + \
+                                                        tva + subgroup + group + '\n'
             check_logger.debug("{0}: {1}".format(stack()[0][3], final_check))
-            check_to_print.append(final_check)
-        if self.cash:
-            backup_list = list(filter(lambda x: x != '', self.cash.split(' ')))
-            reg_ex = search('\d+\,\d+', self.cash)
-            if reg_ex:
-                price = self.cash[reg_ex.start():reg_ex.end()]
-            else:
-                price = backup_list[1]
-            price = (sub(',', '', price)).rjust(8, '0')
-            check_to_print.append("RQ0CASH      " + price + "2\n")
-            self.cash = None
-        if self.card:
-            backup_list = list(filter(lambda x: x != '', self.card.split(' ')))
-            reg_ex = search('\d+\,\d+', self.card)
-            if reg_ex:
-                price = self.card[reg_ex.start():reg_ex.end()]
-            else:
-                price = backup_list[2]
-            price = (sub(',', '', price)).rjust(8, '0')
-            check_to_print.append("RQ1CARD      " + price + "2\n")
-            self.card = None
+            self.check_to_print.append(final_check)
         check_logger.debug("{0}: {1}".format(stack()[0][3], "finished creation of products and payment"))
-        CheckParser.write_2_file(check_to_print)
-        CheckParser.execute_batch_file()
+
+    @staticmethod
+    def get_field_value(regex_pattern, data_bucket, backup_data,
+                        backup_index, subst_from=None, subst_to=None, padding_val=None):
+        reg_ex = search(regex_pattern, data_bucket)
+        if reg_ex:
+            field_value = data_bucket[reg_ex.start():reg_ex.end()]
+        else:
+            field_value = backup_data[backup_index]
+        if subst_from and padding_val:
+            field_value = (sub(subst_from, subst_to, field_value)).rjust(padding_val, '0')
+        elif subst_from:
+            field_value = sub(subst_from, subst_to, field_value)
+        else:
+            return field_value
+
+        return field_value
+
+    @staticmethod
+    def tva_by_time(tva):
+        time = datetime.now()
+        if tva == "24":
+            if 7 <= time.hour < 24:
+                tva = "1"
+            else:
+                tva = "2"
+        elif tva == "9":
+            tva = "3"
+        else:
+            tva = "4"
+
+        return tva
 
     @staticmethod
     def write_2_file(to_print):
