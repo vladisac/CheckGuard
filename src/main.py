@@ -26,6 +26,7 @@
 '''
 
 from argparse import ArgumentParser
+from CheckQueue import check_queue, run_queue_threads
 from CheckGuard import *
 
 
@@ -48,11 +49,12 @@ def main():
     try:
         while True:
             sleep(1)
+            if not check_queue.empty():
+                run_queue_threads()
     except KeyboardInterrupt:
         observer.stop()
     check_logger.info("{}".format("----- Observer join -----"))
     observer.join()
-
     event_handler.on_end()
     sleep(1)
 

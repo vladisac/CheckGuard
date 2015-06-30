@@ -31,6 +31,7 @@ from re import search, sub
 from inspect import stack
 from subprocess import Popen
 from CheckLogger import check_logger
+from CheckQueue import check_queue
 
 
 class CheckParser(object):
@@ -125,12 +126,11 @@ class CheckParser(object):
                     self.cash = line
                 if "Plata card" in line:  # Save the line where card payment method is present
                     self.card = line
-                if "= Cut =" in line and self.check_data != []:  # Got to end of present check
+                if "= Cut =" in line and self.check_data != []:  # Got to end of current check
                     check_logger.debug("{0}: {1}".format(stack()[0][3], self.check_data))
                     self.generate_new_check()  # Use extracted information to generate new information for FP
-                    CheckParser.write_2_file(self.check_to_print)  # Write generated information into target file
+                    check_queue.put(self.check_to_print)
                     self.check_to_print = []
-                    CheckParser.execute_batch_file()  # Execute batch file that starts the FP driver
                     self.check_data = []
             self.position = fh.tell()  # Save the position of the EOF
             check_logger.debug("{0}: {1}".format(stack()[0][3], "_____END_____"))
