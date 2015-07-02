@@ -29,7 +29,7 @@
  *              has finished running. The files in the dist directory are the
  *              ones needed to run your application.
  *
- *	Last revision: 05/21/2015
+ *	Last revision: 07/02/2015
  *
 '''
 

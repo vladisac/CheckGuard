@@ -21,7 +21,7 @@
  *	Loggind module
  *
  *
- *	Last revision: 05/31/2015
+ *	Last revision: 07/02/2015
  *
 '''
 

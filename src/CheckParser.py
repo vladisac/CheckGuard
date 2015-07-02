@@ -22,7 +22,7 @@
  *      and then will output related information to bon.txt (file from where the printer
  *      reads the check)
  *
- *	Last revision: 05/31/2015
+ *	Last revision: 07/02/2015
  *
 '''
 
@@ -172,6 +172,7 @@ class CheckParser(object):
                           tva + subgroup + group + '\n'
             check_logger.debug("{0}: {1}".format(stack()[0][3], final_check))
             self.check_to_print.append(final_check)
+        self.payment_method()
         check_logger.debug("{0}: {1}".format(stack()[0][3], "finished creation of products and payment"))
 
     @staticmethod

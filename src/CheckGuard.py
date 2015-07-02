@@ -21,7 +21,7 @@
  *	This module will monitor files.txt for changes(for new checks)
  *      and then will trigger CheckParser module
  *
- *	Last revision: 05/31/2015
+ *	Last revision: 07/02/2015
  *
 '''
 

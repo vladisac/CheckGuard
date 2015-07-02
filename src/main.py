@@ -21,7 +21,7 @@
  *	Main module, handles shell arguments, watchdog observer and CheckGuard instance
  *
  *
- *	Last revision: 05/31/2015
+ *	Last revision: 07/02/2015
  *
 '''
 
