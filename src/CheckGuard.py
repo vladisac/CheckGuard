@@ -40,7 +40,7 @@ class NewCheckHandler(PatternMatchingEventHandler):
     def __init__(self):
         super(NewCheckHandler, self).__init__(patterns=[r'C:\Vectron\VPosPC\files.txt'])
         self.start_message = "Copyright (C) 2015 Touch Vectron\n" \
-                             "Check Guard version 0.1.1\n" \
+                             "Check Guard version 0.2.0\n" \
                              "Check Guard started...\n" \
                              "To stop CheckGuard please hit Ctrl + C\n"
         self.end_message = "Check Guard stopped\n"

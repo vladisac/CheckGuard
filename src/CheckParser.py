@@ -216,10 +216,11 @@ class CheckParser(object):
                 tva = "1"
             else:
                 tva = "2"
-        elif tva == "9":
-            tva = "3"
         else:
-            tva = "4"
+            if 7 <= time.hour < 24:
+                tva = "3"
+            else:
+                tva = "4"
 
         return tva
 
